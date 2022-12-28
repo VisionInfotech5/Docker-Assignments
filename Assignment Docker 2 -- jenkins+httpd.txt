@@ -1,0 +1,76 @@
+yum install java-1.8.0-openjdk-devel.x86_64 -y
+mkdir servers
+cd servers/
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.70/bin/apache-tomcat-9.0.70.zip
+unzip apache-tomcat-9.0.70.zip
+rm -rf apache-tomcat-9.0.70.zip
+chmod -R 777 apache-tomcat-9.0.70/
+cd apache-tomcat-9.0.70/
+cd webapps/
+wget https://get.jenkins.io/war-stable/2.346.3/jenkins.war
+cd bin/
+./startup.sh
+cd 
+cd .jenkins/secrets/
+cat initialAdminPassword
+http://13.54.57.82:8080/jenkins/
+password
+Create User
+
+Jenkins Start
+
+new Job  1 -- SCM to Docker httpd Container 1
+
+pipeline{
+    agent any
+    stages{
+        stage ('22Q1-container-1'){
+            steps{
+               sh "docker run -itdp 80:80 --name test-1 httpd"
+               sh "git clone https://github.com/VisionInfotech5/Velocity.git 22Q1"
+            }
+        }
+        stage ('22Q2-container-1'){
+            steps{
+               sh "docker run -itdp 90:80 --name test-2 httpd"
+               sh "git clone https://github.com/VisionInfotech5/Velocity.git -b 22Q2 22Q2"
+            }
+        }
+        stage ('22Q3-container-1'){
+            steps{
+               sh "docker run -itdp 9090:80 --name test-3 httpd"
+               sh "git clone https://github.com/VisionInfotech5/Velocity.git -b 22Q3 22Q3"
+            }
+        }
+    }
+}
+ 
+Job - 2 copy index file to httpd  container
+
+pipeline{
+    agent any
+    stages{
+        stage ('copy index file to 22Q1'){
+            steps{
+               sh "cd SCM to Httpd container/"
+               sh "cp 22Q1 22Q2 22Q3 /mnt --recursive "
+               sh "chmod -R 777 /mnt"
+               sh "cd /mnt/22Q1"
+               sh "docker cp /mnt/22Q1/index.html a255929b8a8e:/usr/local/apache2/htdocs"
+            }
+        }
+        stage ('copy index file to 22Q2'){
+            steps{
+               sh "cd /mnt/22Q2"
+               sh "docker cp /mnt/22Q2/index.html d09b5728f020:/usr/local/apache2/htdocs"
+            }
+        }
+        stage ('copy index file to 22Q3'){
+            steps{
+               sh "cd /mnt/22Q3"
+               sh "docker cp /mnt/22Q3/index.html 665d9be79c1a:/usr/local/apache2/htdocs"
+            }
+        }
+    }
+}
+
