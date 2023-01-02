@@ -1,0 +1,63 @@
+Assignment :
+Slave 1
+Deploy Game of Life on  Dev1 > port 8080  & Dev2 >  port 8090
+
+Slave 2
+Deploy Game of Life on  QA1 >  port 8080 & QA2 > port  8090
+
+pipeline{
+    agent{
+        label{
+            label '172.31.11.218'
+            customWorkspace "/mnt/jenkins-slave"
+        }
+    }
+    stages{
+        stage('On slave-1'){
+            steps{
+                sh "sudo yum install docker -y"
+                sh "sudo systemctl start docker"
+                sh "sudo git init"
+                sh "sudo curl -SL https://github.com/docker/compose/releases/download/v2.11.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose"
+                sh "sudo chmod +x /usr/local/bin/docker-compose"
+                sh "sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose"
+                sh "sudo chmod +x /usr/bin/docker-compose"
+                sh "git clone https://github.com/VisionInfotech5/Docker-HTTPD.git -b master"
+                sh "sudo mv Docker-HTTPD/gameoflife.war ."
+                sh "sudo mv Docker-HTTPD/docker-compose.yaml ."
+                sh "sudo chmod -R 777 gameoflife.war"
+                sh "sudo docker-compose up -d"
+            }
+        }
+        stage('On slave-2'){
+            agent{
+                label{
+                    label '172.31.12.173'
+                    customWorkspace "/mnt/jenkins-slave"
+                }
+            }
+            steps{
+                sh "sudo yum install docker -y"
+                sh "sudo systemctl start docker"
+                sh "sudo git init"
+                sh "sudo curl -SL https://github.com/docker/compose/releases/download/v2.11.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose"
+                sh "sudo chmod +x /usr/local/bin/docker-compose"
+                sh "sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose"
+                sh "sudo chmod +x /usr/bin/docker-compose"
+                sh "git clone https://github.com/VisionInfotech5/Docker-HTTPD.git -b master"
+                sh "sudo mv Docker-HTTPD/gameoflife.war ."
+                sh "sudo mv Docker-HTTPD/docker-compose.yaml ."
+                sh "sudo chmod -R 777 gameoflife.war"
+                sh "sudo docker-compose up -d"  
+            }
+        }
+    }
+}
+
+
+
+
+
+        }
+    }
+}
